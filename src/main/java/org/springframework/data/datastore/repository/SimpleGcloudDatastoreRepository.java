@@ -33,7 +33,7 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
 
     private static final int BUFFER_SIZE = 50;
 
-    DatastoreOptions datastoreOptions = DatastoreOptions.getDefaultInstance();
+    DatastoreOptions datastoreOptions;
 
     Marshaller marshaller = new Marshaller();
     Unmarshaller unmarshaller = new Unmarshaller();
@@ -69,11 +69,13 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     final String kind;
 
     public SimpleGcloudDatastoreRepository(
-        EntityInformation<T, ID> entityInformation) {
-            Assert.notNull(entityInformation,
-                "EntityInformation must not be null!");
-            this.entityInformation = entityInformation;
-            this.kind = entityInformation.getJavaType().getSimpleName();
+            EntityInformation<T, ID> entityInformation,
+            DatastoreOptions datastoreOptions) {
+        Assert.notNull(entityInformation,
+            "EntityInformation must not be null!");
+        this.entityInformation = entityInformation;
+        this.kind = entityInformation.getJavaType().getSimpleName();
+        this.datastoreOptions = datastoreOptions;
     }
 
     public Key getKey(ID id) {

@@ -37,6 +37,12 @@ public class GcloudDatastoreRepositoryFactory
     private static final Logger log = LoggerFactory
             .getLogger(GcloudDatastoreRepositoryFactory.class);
 
+    DatastoreOptions datastoreOptions = DatastoreOptions.getDefaultInstance();
+
+    public GcloudDatastoreRepositoryFactory(DatastoreOptions datastoreOptions) {
+        this.datastoreOptions = datastoreOptions;
+    }
+
     @Override
     public <T, ID extends Serializable> EntityInformation<T, ID> getEntityInformation(
         Class<T> domainClass) {
@@ -52,7 +58,8 @@ public class GcloudDatastoreRepositoryFactory
     protected Object getTargetRepository(RepositoryInformation information) {
         EntityInformation<?, Serializable> entityInformation =
             getEntityInformation(information.getDomainType());
-        return getTargetRepositoryViaReflection(information, entityInformation);
+        return getTargetRepositoryViaReflection(
+            information, entityInformation,datastoreOptions);
     }
 
     @Override
@@ -104,7 +111,6 @@ public class GcloudDatastoreRepositoryFactory
                         }
 
                         Unmarshaller unmarshaller = new Unmarshaller();
-                        DatastoreOptions datastoreOptions = DatastoreOptions.getDefaultInstance();
                         Datastore datastore = datastoreOptions.getService();
                         QueryResults<Entity> results = datastore.run(queryBuilder.build());
                         Iterable<Object> iterable = new Iterable<Object>() {
