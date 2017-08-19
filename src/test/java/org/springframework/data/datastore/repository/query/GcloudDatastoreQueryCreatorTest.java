@@ -1,21 +1,20 @@
 package org.springframework.data.datastore.repository.query;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
+import java.lang.reflect.Method;
+
 import org.junit.Test;
-import org.springframework.beans.factory.config.PropertyPathFactoryBean;
-import org.springframework.data.datastore.repository.Person;
 import org.springframework.data.datastore.repository.PersonRepository;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
-import org.springframework.data.repository.query.Parameters;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.data.repository.query.parser.PartTree;
+
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.StructuredQuery;
+import com.google.cloud.datastore.Query;
 
 public class GcloudDatastoreQueryCreatorTest {
 
@@ -30,7 +29,8 @@ public class GcloudDatastoreQueryCreatorTest {
         return new GcloudDatastoreQueryCreator(
             new PartTree(
                 method.getName(),
-                queryMethod.getResultProcessor().getReturnedType().getDomainType()),
+                queryMethod
+                    .getResultProcessor().getReturnedType().getDomainType()),
             new ParametersParameterAccessor(
                 queryMethod.getParameters(),
                 values));
@@ -45,16 +45,15 @@ public class GcloudDatastoreQueryCreatorTest {
             "John");
 
         // Exercise
-        Query query = creator.createQuery();
+        StructuredQuery.Builder<Entity> queryBuilder = creator.createQuery();
 
         // Verify
-        Assert.assertEquals(
-            new Query(
-                new Condition.EqualTo(
-                    Arrays.asList("firstName"),
-                    "John"),
-                Optional.empty()),
-            query);
+        assertEquals(
+            Query.newEntityQueryBuilder()
+                .setFilter(
+                    StructuredQuery.PropertyFilter.eq("firstName", "John"))
+                .build(),
+            queryBuilder.build());
     }
 
     @Test
@@ -67,19 +66,18 @@ public class GcloudDatastoreQueryCreatorTest {
             "john.doe@example.com", "Doe");
 
         // Exercise
-        Query query = creator.createQuery();
+        StructuredQuery.Builder<Entity> queryBuilder = creator.createQuery();
 
         // Verify
-        Assert.assertEquals(
-            new Query(
-                new Condition.And(
-                    new Condition.EqualTo(
-                        Arrays.asList("emailAddress"),
-                        "john.doe@example.com"),
-                    new Condition.EqualTo(
-                        Arrays.asList("lastName"),
-                        "Doe")),
-                Optional.empty()),
-            query);
+        assertEquals(
+            Query.newEntityQueryBuilder()
+                .setFilter(
+                    StructuredQuery.CompositeFilter.and(
+                        StructuredQuery.PropertyFilter.eq(
+                            "emailAddress", "john.doe@example.com"),
+                        StructuredQuery.PropertyFilter.eq(
+                            "lastName", "Doe")))
+                .build(),
+            queryBuilder.build());
     }
 }

@@ -3,14 +3,12 @@ package org.springframework.data.datastore.repository;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.datastore.repository.query.GcloudDatastoreQueryCreator;
-import org.springframework.data.datastore.repository.query.Query;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.NamedQueries;
@@ -29,8 +27,8 @@ import org.springframework.data.repository.query.parser.PartTree;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.GqlQuery;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery;
 
 public class GcloudDatastoreRepositoryFactory
     extends RepositoryFactorySupport {
@@ -87,28 +85,8 @@ public class GcloudDatastoreRepositoryFactory
                                 new ParametersParameterAccessor(
                                     queryMethod.getParameters(),
                                     parameters));
-                        Query query = queryCreator.createQuery();
-                         StringBuilder sb = new StringBuilder("SELECT * FROM Person ");
-                        Map<String, Object> bindings = query.build(sb);
-                        GqlQuery.Builder<Entity> queryBuilder =
-                            com.google.cloud.datastore.Query.newGqlQueryBuilder(
-                                com.google.cloud.datastore.Query.ResultType.ENTITY,
-                                sb.toString());
-                        for (String name : bindings.keySet()) {
-                            Object value = bindings.get(name);
-                            if (value instanceof CharSequence) {
-                                queryBuilder.setBinding(name, ((CharSequence)value).toString());
-                            }
-                            else if (value instanceof Double || value instanceof Float) {
-                                queryBuilder.setBinding(name, ((Number)value).doubleValue());
-                            }
-                            else if (value instanceof Number) {
-                                queryBuilder.setBinding(name, ((Number)value).longValue());
-                            }
-                            else if (value instanceof Boolean) {
-                                queryBuilder.setBinding(name, (Boolean)value);
-                            }
-                        }
+                        StructuredQuery.Builder<Entity> queryBuilder = queryCreator.createQuery();
+                        queryBuilder.setKind(domainType.getSimpleName());
 
                         Unmarshaller unmarshaller = new Unmarshaller();
                         Datastore datastore = datastoreOptions.getService();
