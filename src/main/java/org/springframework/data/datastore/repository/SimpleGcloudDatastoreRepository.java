@@ -3,9 +3,7 @@ package org.springframework.data.datastore.repository;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -38,33 +36,6 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     Marshaller marshaller = new Marshaller();
     Unmarshaller unmarshaller = new Unmarshaller();
 
-    ThreadLocal<Deque<PathElement>> localAncestorsStack =
-        new ThreadLocal<Deque<PathElement>>() {
-            @Override
-            protected Deque<PathElement> initialValue() {
-                return new LinkedList<PathElement>();
-            }
-        };
-
-    @Override
-    public Context with(PathElement ancestor, PathElement... other) {
-        List<PathElement> ancestors = new ArrayList<>(other.length + 1);
-        ancestors.add(ancestor);
-        ancestors.addAll(Arrays.asList(other));
-        return with(ancestors);
-    }
-
-    @Override
-    public Context with(Iterable<PathElement> ancestors) {
-        Deque<PathElement> ancestorsStack = localAncestorsStack.get();
-        int count = 0;
-        for (PathElement ancestor : ancestors) {
-            ancestorsStack.addLast(ancestor);
-            count++;
-        }
-        return new Context(ancestorsStack, count);
-    }
-
     final EntityInformation<T, ID> entityInformation;
     final String kind;
 
@@ -82,7 +53,7 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
         Datastore datastore = datastoreOptions.getService();
 
         KeyFactory keyFactory = datastore.newKeyFactory().setKind(kind);
-        Iterable<PathElement> ancestors = localAncestorsStack.get();
+        Iterable<PathElement> ancestors = Context.getAncestors();
         keyFactory.addAncestors(ancestors);
 
         Key key;
