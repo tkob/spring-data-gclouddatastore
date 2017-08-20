@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZonedDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -350,10 +351,11 @@ public class UnmarshallerTest {
                 .build(),
             bean.calendar);
         Assert.assertEquals(
-            java.sql.Timestamp.valueOf(OffsetDateTime.parse("2017-07-09T12:34:56Z").toLocalDateTime()),
+            java.sql.Timestamp.from(OffsetDateTime.parse("2017-07-09T12:34:56Z").toInstant()),
             bean.sqlTimestamp);
         Assert.assertEquals(
-            OffsetDateTime.parse("2017-07-09T12:34:56Z").toLocalDateTime(),
+            OffsetDateTime.parse("2017-07-09T12:34:56Z")
+                .atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime(),
             bean.localDateTime);
         Assert.assertEquals(
             OffsetDateTime.parse("2017-07-09T12:34:56Z"),
