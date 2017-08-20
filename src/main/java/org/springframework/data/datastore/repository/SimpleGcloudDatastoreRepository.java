@@ -243,8 +243,15 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     @Override
     public T findOne(ID id) {
         Datastore datastore = datastoreOptions.getService();
-        return unmarshaller.unmarshal(
-                datastore.get(getKey(id)), entityInformation.getJavaType());
+        Entity entity = datastore.get(getKey(id));
+        if (entity == null) {
+            return null;
+        }
+        else {
+            return unmarshaller.unmarshal(
+                entity, entityInformation.getJavaType());
+        }
+
     }
 
     @Override
