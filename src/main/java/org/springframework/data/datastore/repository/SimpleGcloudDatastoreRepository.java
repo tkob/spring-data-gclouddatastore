@@ -25,6 +25,7 @@ import com.google.cloud.datastore.KeyQuery;
 import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery;
 
 public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     implements GcloudDatastoreRepository<T, ID>{
@@ -37,33 +38,6 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
 
     Marshaller marshaller = new Marshaller();
     Unmarshaller unmarshaller = new Unmarshaller();
-
-    ThreadLocal<Deque<PathElement>> localAncestorsStack =
-        new ThreadLocal<Deque<PathElement>>() {
-            @Override
-            protected Deque<PathElement> initialValue() {
-                return new LinkedList<PathElement>();
-            }
-        };
-
-    @Override
-    public Context with(PathElement ancestor, PathElement... other) {
-        List<PathElement> ancestors = new ArrayList<>(other.length + 1);
-        ancestors.add(ancestor);
-        ancestors.addAll(Arrays.asList(other));
-        return with(ancestors);
-    }
-
-    @Override
-    public Context with(Iterable<PathElement> ancestors) {
-        Deque<PathElement> ancestorsStack = localAncestorsStack.get();
-        int count = 0;
-        for (PathElement ancestor : ancestors) {
-            ancestorsStack.addLast(ancestor);
-            count++;
-        }
-        return new Context(ancestorsStack, count);
-    }
 
     final EntityInformation<T, ID> entityInformation;
     final String kind;
@@ -82,7 +56,7 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
         Datastore datastore = datastoreOptions.getService();
 
         KeyFactory keyFactory = datastore.newKeyFactory().setKind(kind);
-        Iterable<PathElement> ancestors = localAncestorsStack.get();
+        Iterable<PathElement> ancestors = Context.getAncestors();
         keyFactory.addAncestors(ancestors);
 
         Key key;
@@ -95,11 +69,42 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
         return key;
     }
 
+    private <T> void setAncestorFilter(
+            StructuredQuery.Builder<T> queryBuilder) {
+        Datastore datastore = datastoreOptions.getService();
+
+        Deque<PathElement> ancestors = Context.getAncestors();
+        Deque<PathElement> init = new LinkedList<>();
+        init.addAll(ancestors);
+        PathElement last = init.pollLast();
+
+        if (last != null) {
+            KeyFactory keyFactory = datastore.newKeyFactory();
+            keyFactory.addAncestors(init).setKind(last.getKind());
+            Key key = last.hasId()
+                ? keyFactory.newKey(last.getId())
+                : keyFactory.newKey(last.getName());
+            queryBuilder.setFilter(
+                StructuredQuery.PropertyFilter.hasAncestor(key));
+        }
+    }
+
+    private KeyQuery getAllKeyQuery() {
+        Datastore datastore = datastoreOptions.getService();
+
+        KeyQuery.Builder queryBuilder =
+            Query.newKeyQueryBuilder().setKind(kind);
+        setAncestorFilter(queryBuilder);
+        KeyQuery query = queryBuilder.build();
+        log.debug(query.toString());
+
+        return query;
+    }
+
     @Override
     public long count() {
         Datastore datastore = datastoreOptions.getService();
-        KeyQuery query = Query.newKeyQueryBuilder().setKind(kind).build();
-        QueryResults<?> results = datastore.run(query);
+        QueryResults<?> results = datastore.run(getAllKeyQuery());
         long count = 0;
         while (results.hasNext()) {
             results.next();
@@ -161,7 +166,7 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     @Override
     public void deleteAll() {
         Datastore datastore = datastoreOptions.getService();
-        KeyQuery query = Query.newKeyQueryBuilder().setKind(kind).build();
+        KeyQuery query = getAllKeyQuery();
         deleteKeys(new Iterable<Key>() {
             @Override
             public Iterator<Key> iterator() {
@@ -202,10 +207,15 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
             }
         };
     }
+
     @Override
     public Iterable<T> findAll() {
-        EntityQuery query =
-            Query.newEntityQueryBuilder().setKind(kind).build();
+        EntityQuery.Builder queryBuilder =
+            Query.newEntityQueryBuilder().setKind(kind);
+        setAncestorFilter(queryBuilder);
+        EntityQuery query = queryBuilder.build();
+        log.debug(query.toString());
+
         return query(query);
     }
 
