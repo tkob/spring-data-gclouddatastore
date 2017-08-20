@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -8,7 +8,7 @@ import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.datastore.repository.query.GcloudDatastoreQueryCreator;
+import org.springframework.data.gclouddatastore.repository.query.GcloudDatastoreQueryCreator;
 import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.EntityInformation;
 import org.springframework.data.repository.core.NamedQueries;

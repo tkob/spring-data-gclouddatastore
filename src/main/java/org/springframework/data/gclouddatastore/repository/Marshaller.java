@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import java.beans.PropertyDescriptor;
 import java.net.URI;

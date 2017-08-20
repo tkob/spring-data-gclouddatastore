@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>yokohama.unit</groupId>
-    <artifactId>spring-data-datastore</artifactId>
+    <artifactId>spring-data-gclouddatastore</artifactId>
     <version>0.1.0</version>
 
     <properties>
@@ -61,7 +61,7 @@
         <repository>
             <id>bintray-tkob-maven</id>
             <name>tkob-maven</name>
-            <url>https://api.bintray.com/maven/tkob/maven/spring-data-datastore/;publish=1</url>
+            <url>https://api.bintray.com/maven/tkob/maven/spring-data-gclouddatastore/;publish=1</url>
         </repository>
     </distributionManagement>
 </project>

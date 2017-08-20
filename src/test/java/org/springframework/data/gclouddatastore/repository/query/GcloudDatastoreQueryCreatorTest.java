@@ -1,11 +1,12 @@
-package org.springframework.data.datastore.repository.query;
+package org.springframework.data.gclouddatastore.repository.query;
 
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
 
 import org.junit.Test;
-import org.springframework.data.datastore.repository.PersonRepository;
+import org.springframework.data.gclouddatastore.repository.PersonRepository;
+import org.springframework.data.gclouddatastore.repository.query.GcloudDatastoreQueryCreator;
 import org.springframework.data.projection.SpelAwareProxyProjectionFactory;
 import org.springframework.data.repository.core.support.DefaultRepositoryMetadata;
 import org.springframework.data.repository.query.ParametersParameterAccessor;

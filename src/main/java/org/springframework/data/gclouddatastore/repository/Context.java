@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import java.util.ArrayList;
 import java.util.Arrays;

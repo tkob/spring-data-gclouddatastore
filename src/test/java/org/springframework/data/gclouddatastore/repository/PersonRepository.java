@@ -1,7 +1,9 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.data.gclouddatastore.repository.GcloudDatastoreRepository;
 
 public interface PersonRepository extends GcloudDatastoreRepository<Person, Long> {
     Person findById(long id);

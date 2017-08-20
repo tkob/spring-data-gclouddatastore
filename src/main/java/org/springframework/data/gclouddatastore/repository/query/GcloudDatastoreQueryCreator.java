@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository.query;
+package org.springframework.data.gclouddatastore.repository.query;
 
 import java.util.ArrayList;
 import java.util.Iterator;

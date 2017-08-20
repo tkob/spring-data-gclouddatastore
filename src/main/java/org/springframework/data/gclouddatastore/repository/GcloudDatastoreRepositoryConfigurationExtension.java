@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport;
 

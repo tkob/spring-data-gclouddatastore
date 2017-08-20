@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.instanceOf;
@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.springframework.data.datastore.repository.Unmarshaller;
+import org.springframework.data.gclouddatastore.repository.Unmarshaller;
 import org.springframework.data.annotation.Id;
 
 import com.google.cloud.Timestamp;

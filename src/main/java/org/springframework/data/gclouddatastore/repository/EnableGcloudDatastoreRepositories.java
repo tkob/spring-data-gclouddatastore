@@ -1,4 +1,4 @@
-package org.springframework.data.datastore.repository;
+package org.springframework.data.gclouddatastore.repository;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
