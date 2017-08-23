@@ -107,7 +107,7 @@ public class GcloudDatastoreRepositoryFactory
                                             unmarshaller.unmarshalToObject(results.next(), entity);
                                             return entity;
                                         } catch (InstantiationException | IllegalAccessException e) {
-                                            throw new IllegalStateException();
+                                            throw new IllegalStateException(e);
                                         }
                                     }
                                 };
