@@ -53,6 +53,7 @@ public class GcloudDatastoreEntityInformation<T, ID extends Serializable>
 		throw new IllegalStateException("id not found");
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Class<ID> getIdType() {
 		Class<?> domainClass = getJavaType();

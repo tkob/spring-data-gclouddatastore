@@ -140,6 +140,7 @@ public class Unmarshaller {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public <K extends IncompleteKey> void unmarshalToObject(FullEntity<K> entity,
 			Object object) {
 
@@ -290,7 +291,6 @@ public class Unmarshaller {
 					beanWrapper.setPropertyValue(name, unmarshal(value, Map.class));
 				}
 				else if (Map.class.isAssignableFrom(targetType)) {
-					@SuppressWarnings("unchecked")
 					Map<String, Object> map = (Map<String, Object>) beanWrapper
 							.getPropertyValue(name);
 					if (map == null) {
@@ -338,7 +338,6 @@ public class Unmarshaller {
 					beanWrapper.setPropertyValue(name, unmarshal(value, List.class));
 				}
 				else if (List.class.isAssignableFrom(targetType)) {
-					@SuppressWarnings("unchecked")
 					List<Object> newList = (List<Object>) beanWrapper
 							.getPropertyValue(name);
 					if (newList == null) {

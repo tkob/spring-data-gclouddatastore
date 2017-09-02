@@ -111,6 +111,7 @@ public class Marshaller {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public FullEntity<? extends IncompleteKey> toEntity(Object object, Key key) {
 		FullEntity.Builder<? extends IncompleteKey> builder;
 		if (key == null) {
