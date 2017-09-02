@@ -27,8 +27,6 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import org.springframework.data.gclouddatastore.repository.query.GcloudDatastoreQueryCreator;
 import org.springframework.data.projection.ProjectionFactory;
@@ -47,8 +45,6 @@ import org.springframework.data.repository.query.ResultProcessor;
 import org.springframework.data.repository.query.parser.PartTree;
 
 public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
-	private static final Logger log = LoggerFactory
-			.getLogger(GcloudDatastoreRepositoryFactory.class);
 
 	DatastoreOptions datastoreOptions = DatastoreOptions.getDefaultInstance();
 
