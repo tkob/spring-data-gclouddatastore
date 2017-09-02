@@ -5,23 +5,15 @@ import static org.hamcrest.Matchers.emptyIterable;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.io.Serializable;
 import java.util.Arrays;
-import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.repository.Repository;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.google.cloud.NoCredentials;
-import com.google.cloud.ServiceOptions;
-import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.PathElement;
 
 @RunWith(SpringJUnit4ClassRunner.class)
