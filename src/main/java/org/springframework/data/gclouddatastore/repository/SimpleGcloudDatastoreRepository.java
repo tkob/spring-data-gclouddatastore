@@ -252,7 +252,7 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
 		}
 	}
 
-	private <T> void setAncestorFilter(StructuredQuery.Builder<T> queryBuilder) {
+	private <U> void setAncestorFilter(StructuredQuery.Builder<U> queryBuilder) {
 		Datastore datastore = datastoreOptions.getService();
 
 		Deque<PathElement> ancestors = Context.getAncestors();
