@@ -90,8 +90,6 @@ public class SimpleGcloudDatastoreRepository<T, ID extends Serializable>
     }
 
     private KeyQuery getAllKeyQuery() {
-        Datastore datastore = datastoreOptions.getService();
-
         KeyQuery.Builder queryBuilder =
             Query.newKeyQueryBuilder().setKind(kind);
         setAncestorFilter(queryBuilder);
