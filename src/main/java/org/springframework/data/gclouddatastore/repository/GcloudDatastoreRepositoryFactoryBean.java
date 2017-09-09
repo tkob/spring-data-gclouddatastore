@@ -29,11 +29,15 @@ public class GcloudDatastoreRepositoryFactoryBean<T extends Repository<S, ID>, S
 
 	DatastoreOptions datastoreOptions;
 
-	public GcloudDatastoreRepositoryFactoryBean() {
+	public GcloudDatastoreRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
+		super(repositoryInterface);
 		this.datastoreOptions = DatastoreOptions.getDefaultInstance();
 	}
 
-	public GcloudDatastoreRepositoryFactoryBean(DatastoreOptions datastoreOptions) {
+	public GcloudDatastoreRepositoryFactoryBean(
+			Class<? extends T> repositoryInterface,
+			DatastoreOptions datastoreOptions) {
+		super(repositoryInterface);
 		this.datastoreOptions = datastoreOptions;
 	}
 
