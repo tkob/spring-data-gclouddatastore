@@ -18,6 +18,7 @@ package org.springframework.data.gclouddatastore.repository.query;
 
 import java.lang.reflect.Method;
 
+import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.StructuredQuery;
@@ -44,7 +45,8 @@ public class GcloudDatastoreQueryCreatorTests {
 				new PartTree(method.getName(),
 						queryMethod.getResultProcessor().getReturnedType()
 								.getDomainType()),
-				new ParametersParameterAccessor(queryMethod.getParameters(), values));
+				new ParametersParameterAccessor(queryMethod.getParameters(), values),
+				DatastoreOptions.getDefaultInstance());
 	}
 
 	@Test

@@ -18,6 +18,7 @@ package org.springframework.data.gclouddatastore.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface PersonRepository extends GcloudDatastoreRepository<Person, Long> {
 
@@ -44,5 +45,8 @@ public interface PersonRepository extends GcloudDatastoreRepository<Person, Long
 
 	List<Person> findByLastNameOrderByFirstNameDesc(String lastName);
 
-	Optional<Person> findFirstByBirthYear(int birthYear);
+	Optional<Person> findFirstById(long id);
+
+	Stream<Person> findByLastName(String lastName);
+
 }

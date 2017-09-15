@@ -18,7 +18,9 @@ package org.springframework.data.gclouddatastore.repository;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -83,6 +85,7 @@ public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
 					NamedQueries namedQueries) {
 
 				QueryMethod queryMethod = new QueryMethod(method, metadata, factory);
+
 				ResultProcessor resultProcessor = queryMethod.getResultProcessor();
 				Class<?> domainType = resultProcessor.getReturnedType().getDomainType();
 				PartTree tree = new PartTree(method.getName(), domainType);
@@ -90,8 +93,10 @@ public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
 					@Override
 					public Object execute(Object[] parameters) {
 						GcloudDatastoreQueryCreator queryCreator = new GcloudDatastoreQueryCreator(
-								tree, new ParametersParameterAccessor(
-										queryMethod.getParameters(), parameters));
+								tree,
+								new ParametersParameterAccessor(
+										queryMethod.getParameters(), parameters),
+								datastoreOptions);
 						StructuredQuery.Builder<Entity> queryBuilder = queryCreator
 								.createQuery();
 						queryBuilder.setKind(domainType.getSimpleName());
@@ -100,35 +105,68 @@ public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
 						Datastore datastore = datastoreOptions.getService();
 						QueryResults<Entity> results = datastore
 								.run(queryBuilder.build());
-						Iterable<Object> iterable = new Iterable<Object>() {
-							@Override
-							public Iterator<Object> iterator() {
-								return new Iterator<Object>() {
-									@Override
-									public boolean hasNext() {
-										return results.hasNext();
-									}
 
+						try {
+							if (queryMethod.isCollectionQuery()) {
+								List<Object> result = new ArrayList<Object>();
+								while (results.hasNext()) {
+									Object entity = domainType.newInstance();
+									unmarshaller.unmarshalToObject(results.next(),
+											entity);
+									result.add(entity);
+								}
+								return resultProcessor.processResult(result);
+							}
+							else if (queryMethod.isStreamQuery()) {
+
+								Iterable<Object> iterable = new Iterable<Object>() {
 									@Override
-									public Object next() {
-										try {
-											Object entity = domainType.newInstance();
-											unmarshaller.unmarshalToObject(results.next(),
-													entity);
-											return entity;
-										}
-										catch (InstantiationException
-												| IllegalAccessException e) {
-											throw new IllegalStateException(e);
-										}
+									public Iterator<Object> iterator() {
+										return new Iterator<Object>() {
+											@Override
+											public boolean hasNext() {
+												return results.hasNext();
+											}
+
+											@Override
+											public Object next() {
+												try {
+													Object entity = domainType
+															.newInstance();
+													unmarshaller.unmarshalToObject(
+															results.next(), entity);
+													return entity;
+												}
+												catch (InstantiationException
+														| IllegalAccessException e) {
+													throw new IllegalStateException(e);
+												}
+											}
+										};
 									}
 								};
+								Stream<Object> result = StreamSupport
+										.stream(iterable.spliterator(), false);
+								return resultProcessor.processResult(result);
 							}
-						};
-
-						Stream<Object> result = StreamSupport
-								.stream(iterable.spliterator(), false);
-						return resultProcessor.processResult(result);
+							else if (queryMethod.isQueryForEntity()) {
+								Object result;
+								if (!results.hasNext()) {
+									result = null;
+								}
+								else {
+									result = domainType.newInstance();
+									unmarshaller.unmarshalToObject(results.next(),
+											result);
+								}
+								return resultProcessor.processResult(result);
+							}
+							throw new UnsupportedOperationException(
+									"Query method not supported.");
+						}
+						catch (InstantiationException | IllegalAccessException e) {
+							throw new IllegalStateException(e);
+						}
 					}
 
 					@Override
@@ -139,5 +177,4 @@ public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
 			}
 		};
 	}
-
 }

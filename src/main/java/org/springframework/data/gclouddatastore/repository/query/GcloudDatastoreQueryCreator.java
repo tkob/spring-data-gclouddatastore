@@ -17,14 +17,21 @@
 package org.springframework.data.gclouddatastore.repository.query;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.KeyFactory;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.StructuredQuery;
 
 import org.springframework.data.domain.Sort;
+import org.springframework.data.gclouddatastore.repository.Context;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.repository.query.ParameterAccessor;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
@@ -34,8 +41,13 @@ import org.springframework.data.repository.query.parser.PartTree;
 public class GcloudDatastoreQueryCreator extends
 		AbstractQueryCreator<StructuredQuery.Builder<Entity>, StructuredQuery.Filter> {
 
-	public GcloudDatastoreQueryCreator(PartTree tree, ParameterAccessor accessor) {
+	DatastoreOptions datastoreOptions;
+
+	public GcloudDatastoreQueryCreator(PartTree tree, ParameterAccessor accessor,
+			DatastoreOptions datastoreOptions) {
 		super(tree, accessor);
+
+		this.datastoreOptions = datastoreOptions;
 	}
 
 	@Override
@@ -97,6 +109,27 @@ public class GcloudDatastoreQueryCreator extends
 	protected StructuredQuery.Builder<Entity> complete(StructuredQuery.Filter filter,
 			Sort sort) {
 
-		return Query.newEntityQueryBuilder().setFilter(filter);
+		return Query.newEntityQueryBuilder().setFilter(setAncestorFilter(filter));
+	}
+
+	protected StructuredQuery.Filter setAncestorFilter(StructuredQuery.Filter filter) {
+		Datastore datastore = datastoreOptions.getService();
+
+		Deque<PathElement> ancestors = Context.getAncestors();
+		Deque<PathElement> init = new LinkedList<>();
+		init.addAll(ancestors);
+		PathElement last = init.pollLast();
+
+		if (last == null) {
+			return filter;
+		}
+		else {
+			KeyFactory keyFactory = datastore.newKeyFactory();
+			keyFactory.addAncestors(init).setKind(last.getKind());
+			com.google.cloud.datastore.Key key = last.hasId()
+					? keyFactory.newKey(last.getId()) : keyFactory.newKey(last.getName());
+			return StructuredQuery.CompositeFilter.and(filter,
+					StructuredQuery.PropertyFilter.hasAncestor(key));
+		}
 	}
 }

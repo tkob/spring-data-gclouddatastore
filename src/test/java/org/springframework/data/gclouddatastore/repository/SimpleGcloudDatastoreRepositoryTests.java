@@ -17,6 +17,7 @@
 package org.springframework.data.gclouddatastore.repository;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import com.google.cloud.datastore.PathElement;
 import org.junit.Test;
@@ -247,6 +248,62 @@ public class SimpleGcloudDatastoreRepositoryTests {
 			// Verify
 			assertThat(this.repo.findAll(Arrays.asList(123L, 456L)),
 					contains(new Person(123), new Person(456)));
+		}
+	}
+
+	@Test
+	public void testQueryMethod_QueryForEntity() throws Exception {
+		try (Context ctx = Context.with(PathElement.of("Kind", 1))) {
+			// Setup
+			this.repo.deleteAll();
+			this.repo.save(Arrays.asList(new Person(123), new Person(456)));
+
+			// Exercise, Verify
+			assertEquals(new Person(456), this.repo.findById(456L));
+		}
+	}
+
+	@Test
+	public void testQueryMethod_QueryForEntity_Optional() throws Exception {
+		try (Context ctx = Context.with(PathElement.of("Kind", 1))) {
+			// Setup
+			this.repo.deleteAll();
+			this.repo.save(Arrays.asList(new Person(123), new Person(456)));
+
+			// Exercise, Verify
+			assertEquals(new Person(123), this.repo.findFirstById(123L).get());
+		}
+	}
+
+	@Test
+	public void testQueryMethod_CollectionQuery() throws Exception {
+		try (Context ctx = Context.with(PathElement.of("Kind", 1))) {
+			// Setup
+			this.repo.deleteAll();
+			this.repo.save(Arrays.asList(
+					new Person(123L, "", "John", "Doe", 0, false),
+					new Person(456L, "", "Jane", "Doe", 0, false)));
+
+			// Exercise, Verify
+			assertEquals(
+					Arrays.asList(new Person(456L, "", "Jane", "Doe", 0, false)),
+					this.repo.findByFirstName("Jane"));
+		}
+	}
+
+	@Test
+	public void testQueryMethod_StreamQuery() throws Exception {
+		try (Context ctx = Context.with(PathElement.of("Kind", 1))) {
+			// Setup
+			this.repo.deleteAll();
+			this.repo.save(Arrays.asList(
+					new Person(123L, "", "John", "Lennon", 0, false),
+					new Person(456L, "", "John", "Mayer", 0, false)));
+
+			// Exercise, Verify
+			assertEquals(
+					Arrays.asList(new Person(456L, "", "John", "Mayer", 0, false)),
+					this.repo.findByLastName("Mayer").collect(Collectors.toList()));
 		}
 	}
 }
