@@ -16,11 +16,15 @@
 
 package org.springframework.data.gclouddatastore.repository;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import org.springframework.data.annotation.Id;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Person {
 
 	@Id
@@ -35,9 +39,6 @@ public class Person {
 	private int birthYear;
 
 	private boolean citizen;
-
-	public Person() {
-	}
 
 	public Person(long id) {
 		this.id = id;
