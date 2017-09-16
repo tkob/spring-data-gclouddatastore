@@ -26,6 +26,7 @@ import java.util.stream.StreamSupport;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
@@ -145,7 +146,7 @@ public class GcloudDatastoreQueryCreator extends
 		else {
 			KeyFactory keyFactory = datastore.newKeyFactory();
 			keyFactory.addAncestors(init).setKind(last.getKind());
-			com.google.cloud.datastore.Key key = last.hasId()
+			Key key = last.hasId()
 					? keyFactory.newKey(last.getId()) : keyFactory.newKey(last.getName());
 			return StructuredQuery.CompositeFilter.and(filter,
 					StructuredQuery.PropertyFilter.hasAncestor(key));
