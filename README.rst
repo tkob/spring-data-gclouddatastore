@@ -19,7 +19,7 @@ To use spring-data-gclouddatastore from a Gradle project::
 
     dependencies {
         // ...
-        compile 'yokohama.unit:spring-data-gclouddatastore:0.3.0'
+        compile 'yokohama.unit:spring-data-gclouddatastore:0.3.1'
         // ...
     }
 
@@ -44,7 +44,7 @@ To use spring-data-gclouddatastore from a Maven project::
         <dependency>
             <groupId>yokohama.unit</groupId>
             <artifactId>spring-data-gclouddatastore</artifactId>
-            <version>0.3.0</version>
+            <version>0.3.1</version>
         </dependency>
         <!-- ... -->
     </dependencies>
