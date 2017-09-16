@@ -148,8 +148,13 @@ public class GcloudDatastoreQueryCreator extends
 			keyFactory.addAncestors(init).setKind(last.getKind());
 			Key key = last.hasId()
 					? keyFactory.newKey(last.getId()) : keyFactory.newKey(last.getName());
-			return StructuredQuery.CompositeFilter.and(filter,
-					StructuredQuery.PropertyFilter.hasAncestor(key));
+			StructuredQuery.Filter ancestorFilter = StructuredQuery.PropertyFilter.hasAncestor(key);
+			if (filter == null) {
+				return ancestorFilter;
+			}
+			else {
+				return StructuredQuery.CompositeFilter.and(filter, ancestorFilter);
+			}
 		}
 	}
 }
