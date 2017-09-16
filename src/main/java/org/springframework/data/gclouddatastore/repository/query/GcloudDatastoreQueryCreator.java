@@ -21,6 +21,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
@@ -108,8 +109,26 @@ public class GcloudDatastoreQueryCreator extends
 	@Override
 	protected StructuredQuery.Builder<Entity> complete(StructuredQuery.Filter filter,
 			Sort sort) {
+		if (sort == null) {
+			return Query.newEntityQueryBuilder()
+					.setFilter(setAncestorFilter(filter));
+		}
 
-		return Query.newEntityQueryBuilder().setFilter(setAncestorFilter(filter));
+		StructuredQuery.OrderBy[] orderBy = StreamSupport
+				.stream(sort.spliterator(), false)
+				.map(order -> order.isAscending()
+						? StructuredQuery.OrderBy.asc(order.getProperty())
+						: StructuredQuery.OrderBy.desc(order.getProperty()))
+				.toArray(len -> new StructuredQuery.OrderBy[len]);
+		if (orderBy.length == 0) {
+			return Query.newEntityQueryBuilder()
+					.setFilter(setAncestorFilter(filter));
+		}
+		else {
+			return Query.newEntityQueryBuilder()
+					.addOrderBy(orderBy[0], orderBy)
+					.setFilter(setAncestorFilter(filter));
+		}
 	}
 
 	protected StructuredQuery.Filter setAncestorFilter(StructuredQuery.Filter filter) {

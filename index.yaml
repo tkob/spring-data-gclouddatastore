@@ -1,0 +1,7 @@
+indexes:
+
+- kind: Person
+  ancestor: yes
+  properties:
+  - name: lastName
+  - name: firstName

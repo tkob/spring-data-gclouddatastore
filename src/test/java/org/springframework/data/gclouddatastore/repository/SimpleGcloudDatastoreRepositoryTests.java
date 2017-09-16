@@ -306,4 +306,25 @@ public class SimpleGcloudDatastoreRepositoryTests {
 					this.repo.findByLastName("Mayer").collect(Collectors.toList()));
 		}
 	}
+
+	@Test
+	public void testQueryMethod_OrderBy() throws Exception {
+		try (Context ctx = Context.with(PathElement.of("Kind", 1))) {
+			// Setup
+			this.repo.deleteAll();
+			this.repo.save(Arrays.asList(
+					new Person(1L, "", "Fela", "Kuti", 0, false),
+					new Person(2L, "", "Tony", "Allen", 0, false),
+					new Person(3L, "", "Seun", "Kuti", 0, false),
+					new Person(4L, "", "Femi", "Kuti", 0, false)));
+
+			// Exercise, Verify
+			assertEquals(
+					Arrays.asList(
+							new Person(1L, "", "Fela", "Kuti", 0, false),
+							new Person(4L, "", "Femi", "Kuti", 0, false),
+							new Person(3L, "", "Seun", "Kuti", 0, false)),
+					this.repo.findByLastNameOrderByFirstNameAsc("Kuti"));
+		}
+	}
 }
