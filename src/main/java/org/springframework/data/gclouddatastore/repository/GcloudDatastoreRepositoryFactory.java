@@ -135,7 +135,7 @@ public class GcloudDatastoreRepositoryFactory extends RepositoryFactorySupport {
 															.newInstance();
 													unmarshaller.unmarshalToObject(
 															results.next(), entity);
-													return entity;
+													return entity; 
 												}
 												catch (InstantiationException
 														| IllegalAccessException e) {
